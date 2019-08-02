@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fish.dao.WorkFlowDao">
+
+    <resultMap id="workFlowResultMap" type="WorkFlowModel">
+        <id property="id" column="work_flow_id"/>
+        <result property="flowName" column="work_flow_name"/>
+        <result property="description" column="description"/>
+        <result property="addTime" column="add_time"/>
+        <result property="userId" column="user_id"/>
+        <result property="isOver" column="is_over"/>
+        <result property="step" column="step"/>
+    </resultMap>
+
+
+
+    <select id="getWorkFlowByUserId" resultType="WorkFlowModel" resultMap="workFlowResultMap">
+        select work_flow_id,work_flow_name,description,add_time,user_id,is_over,step from workflow where user_id = #{userId}
+    </select>
+
+
+</mapper>

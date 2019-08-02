@@ -1,7 +1,6 @@
 package com.lvfish.homework;
 
 import java.lang.reflect.Proxy;
-
 public class Main {
     public static void main(String[] args){
         System.out.println("测试AOP");
