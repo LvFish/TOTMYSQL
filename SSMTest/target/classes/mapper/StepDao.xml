@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fish.dao.StepDao">
+
+    <resultMap id="stepResultMap" type="StepModel">
+        <id property="id" column="step_id"/>
+        <result property="workFlowId" column="work_flow_id"/>
+        <result property="workFlowName" column="work_flow_name"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="nickname"/>
+        <result property="description" column="description"/>
+        <result property="step" column="step"/>
+        <result property="operationTime" column="operation_time"/>
+        <result property="isPass" column="is_pass"/>
+    </resultMap>
+
+
+    <select id="getStepListByFlowId" resultType="StepModel" resultMap="stepResultMap">
+        SELECT
+            step.step,
+	        operation_time,
+	        step.description,
+	        is_pass,
+	        work_flow_name,
+	        nickname
+        FROM
+	        step,
+	        workflow,
+            `user`
+            WHERE
+                step.work_flow_id = #{flowId}
+                AND `user`.user_id = step.user_id
+                AND step.work_flow_id = workflow.work_flow_id
+            ORDER BY
+                operation_time;
+    </select>
+
+    <insert id="insertStep" parameterType="com.fish.dao.StepDao">
+        INSERT INTO `step`( `work_flow_id`, `user_id`, `operation_time`, `description`, `is_pass`, `step`)
+        VALUES ( #{workFlowId}, #{userId}, #{operationTime}, #{description}, #{isPass}, #{step});
+    </insert>
+
+
+</mapper>

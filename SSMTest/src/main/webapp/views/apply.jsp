@@ -58,9 +58,9 @@
         <div class="sidebar-collapse">
             <ul class="nav" id="main-menu">
 
-                <li><a class="active-menu" href="#"><i
+                <li><a  href="/user/index"><i
                         class="fa fa-dashboard"></i> 我的流程</a></li>
-                <li><a href="/flow/apply"><i class="fa fa-desktop"></i>
+                <li><a class="active-menu" href="/flow/apply"><i class="fa fa-desktop"></i>
                     流程审批</a></li>
 
             </ul>
@@ -77,24 +77,29 @@
                         &times;
                     </button>
                     <h4 class="modal-title" id="myModalLabel">
-                        流程申请
+                        审批
                     </h4>
                 </div>
                 <div class="modal-body">
                     <form class="form-horizontal" role="form">
-                        <!--用户框-->
+
                         <div class="form-group">
-                            <label for="add-name" class="col-sm-2 control-label">流程名</label>
+                            <label for="add-description" class="col-sm-2 control-label">审批意见</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="add-name" placeholder="流程名" required="required">
+                                <input type="hidden" class="form-control" id="add-id" required="required">
+                                <input type="text" class="form-control" id="add-description" placeholder="审批意见" required="required">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="add-description" class="col-sm-2 control-label">流程描述</label>
+                            <label for="add-result" class="col-sm-2 control-label">审批结果</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="add-description" placeholder="流程描述" required="required">
+                                <select id="add-result" class="form-control">
+                                    <option value="1">同意</option>
+                                    <option value="0">驳回</option>
+                                </select>
                             </div>
                         </div>
+
 
                     </form>
 
@@ -102,14 +107,13 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">关闭
                     </button>
-                    <button type="button" onclick="addFlow()" class="btn btn-primary">
-                        添加
+                    <button type="button" onclick="dealApply()" class="btn btn-primary">
+                        上传
                     </button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal -->
     </div>
-
 
     <!-- /. NAV SIDE  -->
     <div id="page-wrapper">
@@ -117,7 +121,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <h1 class="page-header">
-                        我的流程 <small>查看所有流程</small>
+                        流程审批
                     </h1>
                 </div>
             </div>
@@ -128,14 +132,13 @@
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <div class="table-responsive">
-                                <button data-toggle="modal" data-target="#myModal"
-                                        style="background:none;border:none;float:right;outline:none;"><i class="fa fa-plus" aria-hidden="true"></i></button>
                                 <table class="table table-striped table-bordered table-hover" id="dataTables-example">
                                     <thead>
                                     <tr>
-                                        <th>流程名</th>
-                                        <th>申请日期</th>
-                                        <th>申请状态</th>
+                                        <th>申请人</th>
+                                        <th>申请时间</th>
+                                        <th>申请事件</th>
+                                        <th>申请描述</th>
                                         <th>操作</th>
                                     </tr>
                                     </thead>
@@ -164,37 +167,37 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        getWorkFlow();
+        getStepList();
 
     });
-    function addFlow(){
-        var name = document.getElementById("add-name").value;
-        var description = document.getElementById("add-description").value;
-        if(description.length<=0||name.length<=0){
-            alert("请输入正确信息!");return;
-        }
+
+    function dealApply(){
+        var flowId = document.getElementById('add-id').value;
+        var description = document.getElementById('add-description').value;
+        var result = document.getElementById('add-result').value;
+        console.log(result);
         $.ajax({
-            url:"/flow/addFlow",
-            type:"post",
+            url:'/flow/addStep',
+            type:'post',
             data:{
-                'name':name,
-                'description':description
+                'flowId':flowId,
+                'description':description,
+                'result':result
             },
             async:false,
-            success:function() {
-                console.log(123);
+            success:function(res) {
                 $('#myModal').modal('hide');
                 location.reload();
             }
-        })
-    }
+        });
 
+    }
     function getMyDate(time){
         var oDate = new Date(time),
             oYear = oDate.getFullYear(),
             oMonth = oDate.getMonth()+1,
             oDay = oDate.getDate(),
-                oTime = oYear +'-'+ getZF(oMonth) +'-'+ getZF(oDay);//最后拼接时间
+            oTime = oYear +'-'+ getZF(oMonth) +'-'+ getZF(oDay);//最后拼接时间
         return oTime;
     };
 
@@ -206,15 +209,19 @@
         return num;
     }
 
-    $(".panel-body").on('click', 'button#showDetail', function () {
-        var data = $("#dataTables-example").DataTable().row($(this).parents("tr")).data();
-        console.log(data);
-        window.location.href="/user/showDetail?workflowId="+data.flowId;
+    $(".panel-body").on('click', 'button#approval', function () {
+
+         var data = $("#dataTables-example").DataTable().row($(this).parents("tr")).data();
+         document.getElementById('add-id').value = data.flowId;
+        // document.getElementById('upload-file').value = "";
+        /*  alert("Do you want delete " + data.username + "?"); */
+        $('#myModal').modal('show');
+
     });
 
-    function getWorkFlow(){
+    function getStepList(){
         $.ajax({  // ajax登陆请求
-            url:"/user/getUserWorkFlow",
+            url:"/user/getApprovalWorkFlow",
             type:"post",
             data:{
             },
@@ -222,7 +229,7 @@
             success:function(res){
                 var jsonDate =res;
 
-                var msg = jsonDate.workFlowModelList;
+                var msg = jsonDate.approvalWorkFlowList;
                 $('#dataTables-example').dataTable().fnDestroy();//sample_1是table的id
                 $('#dataTables-example').dataTable( {
                     bProcessing : true,
@@ -244,23 +251,15 @@
                             "sLast" : "最后一页"
                         }
                     },
-
                     "aaData":msg,
                     "aoColumns": [
-                        // 按顺序来
-                        { "mData": "flowName"},
+
+                        { "mData": "nickname"},
                         { "mData": function(obj){
                                 return getMyDate(obj.addTime.time)//通过调用函数来格式化所获取的时间戳
                             }},// 是否选中
-                        { "mData": function(obj){
-                                if(obj.isOver == 1){
-                                    return "已同意";
-                                }else if(obj.isOver == 2){
-                                    return "已驳回";
-                                }else{
-                                    return "审批中";
-                                }
-                            }},
+                        { "mData": "flowName"},
+                        {"mData" : "description"},
                         {"mData" : ""},
                         /*  { "mData": 234}, */
                     ],
@@ -274,13 +273,14 @@
                             "targets": -1,//删除
                             "data": null,
                             "render": function() {
-                                var button  = "<button style='margin-right: 10px;' id='showDetail' class='btn btn-primary' type='button'>查看详情</button>";
+                                var button  = "<button style='margin-right: 10px;' id='approval' class='btn btn-primary' type='button'>审批</button>";
                                 return button;
                             },
 
                         }
 
                     ] ,
+
 
                 } );
 

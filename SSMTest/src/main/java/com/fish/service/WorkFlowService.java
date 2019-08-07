@@ -18,4 +18,20 @@ public class WorkFlowService {
     public List<WorkFlowModel> getWorkFlowByUserId(int userId){
         return workFlowDao.getWorkFlowByUserId(userId);
     }
+
+    public void addFlow(WorkFlowModel workFlowModel){
+        workFlowDao.addFlow(workFlowModel);
+    }
+
+    public List<WorkFlowModel> getWorkFlowById(int userId){
+        return  workFlowDao.getWorkFlowById(userId);
+    }
+
+    public WorkFlowModel getWorkFlowByFlowId(int flowId){
+        return workFlowDao.getWorkFlowByFlowId(flowId);
+    }
+
+    public void updateWorkFlowModel(WorkFlowModel workFlowModel){
+        workFlowDao.updateWorkFlowModel(workFlowModel);
+    }
 }

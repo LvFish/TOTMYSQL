@@ -4,20 +4,45 @@
 <mapper namespace="com.fish.dao.WorkFlowDao">
 
     <resultMap id="workFlowResultMap" type="WorkFlowModel">
-        <id property="id" column="work_flow_id"/>
+        <id property="flowId" column="work_flow_id"/>
         <result property="flowName" column="work_flow_name"/>
         <result property="description" column="description"/>
         <result property="addTime" column="add_time"/>
         <result property="userId" column="user_id"/>
         <result property="isOver" column="is_over"/>
         <result property="step" column="step"/>
+        <result property="nickname" column="nickname"/>
     </resultMap>
-
 
 
     <select id="getWorkFlowByUserId" resultType="WorkFlowModel" resultMap="workFlowResultMap">
         select work_flow_id,work_flow_name,description,add_time,user_id,is_over,step from workflow where user_id = #{userId}
+        order by add_time;
     </select>
 
+
+    <select id="getWorkFlowById" resultType="WorkFlowModel" resultMap="workFlowResultMap">
+        select u2.nickname, workflow.work_flow_id,work_flow_name,description,add_time from user u1,workflow,user u2
+        where u1.permission = (workflow.step + 1)
+        and u1.user_id = #{userId}
+        and workflow.user_id = u2.user_id
+        and is_over = 0;
+    </select>
+
+    <select id="getWorkFlowByFlowId" resultType="WorkFlowModel" resultMap="workFlowResultMap">
+        select work_flow_id,work_flow_name,description,add_time,user_id,is_over,step from workflow where work_flow_id = #{flowId};
+    </select>
+
+
+    <insert id="addFlow" parameterType="com.fish.dao.WorkFlowDao">
+        INSERT INTO `workflow`( `work_flow_name`, `description`, `add_time`, `user_id`, `is_over`, `step`)
+        VALUES (#{flowName},#{description},#{addTime},#{userId},#{isOver},#{step});
+    </insert>
+
+    <update id="updateWorkFlowModel"  parameterType="com.fish.dao.WorkFlowDao">
+    UPDATE `my_test`.`workflow`
+    SET  `is_over` = #{isOver}, `step` = #{step}
+    WHERE `work_flow_id` = #{flowId};
+</update>
 
 </mapper>
